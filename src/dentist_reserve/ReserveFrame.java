@@ -7,7 +7,8 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.LayoutStyle.ComponentPlacement;
-
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.Component;
 import java.awt.Image;
 import java.awt.Color;
@@ -124,6 +125,24 @@ class MainFrame extends JFrame {
         idTextField = new JTextField();
         idTextField.setColumns(10);
         idTextField.setFont(new Font("Arial", Font.PLAIN, 16));
+        
+        // Add a document listener to the text field
+        idTextField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                updateComboBoxState();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                updateComboBoxState();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                updateComboBoxState();
+            }
+        });
         
         yearComboBox = new JComboBox<>();
         // Put the text in the center
@@ -356,6 +375,17 @@ class MainFrame extends JFrame {
 		
 		AppointmentFrame ap_f = new AppointmentFrame((String)data_list.get(1), id);
 		ap_f.setTitle("Make Appointment");
+    }
+	
+	private void updateComboBoxState() {
+        // Get the text from the text field
+        String text = idTextField.getText();
+        
+        // Enable or disable the combo boxes based on the text field's content
+        boolean enableComboBoxes = text.isEmpty();
+        yearComboBox.setEnabled(enableComboBoxes);
+        monthComboBox.setEnabled(enableComboBoxes);
+        dateComboBox.setEnabled(enableComboBoxes);
     }
 }
 
