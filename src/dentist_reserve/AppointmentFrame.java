@@ -186,7 +186,7 @@ public class AppointmentFrame extends JFrame {
         gl_panel.setHorizontalGroup(
             gl_panel.createParallelGroup(Alignment.LEADING)
             	.addGroup(gl_panel.createSequentialGroup()
-                    .addGap(150)
+                    .addGap(190)
                     .addComponent(lblTitle)
                 )
                 .addGroup(gl_panel.createSequentialGroup()
