@@ -189,7 +189,7 @@ class MainFrame extends JFrame {
         btnSearch.setPreferredSize(new Dimension(200, 50));
         btnSearch.setFont(new Font(btnSearch.getFont().getName(), Font.BOLD, 16));
         
-        JButton btnAdd = new JButton("新增");
+        JButton btnAdd = new JButton("新增病例");
         btnAdd.setPreferredSize(new Dimension(200, 50));
         btnAdd.setFont(new Font(btnAdd.getFont().getName(), Font.BOLD, 16));
         
@@ -242,11 +242,13 @@ class MainFrame extends JFrame {
 		                .addGroup(gl_right_panel.createSequentialGroup()
 							.addGap(20)
 						    .addComponent(btnSearch, GroupLayout.PREFERRED_SIZE, 80, GroupLayout.PREFERRED_SIZE)
-						    .addGap(40)
-						    .addComponent(btnAdd, GroupLayout.PREFERRED_SIZE, 80, GroupLayout.PREFERRED_SIZE)
-						    .addGap(40)
-							.addComponent(btnReserve, GroupLayout.PREFERRED_SIZE, 80, GroupLayout.PREFERRED_SIZE)
 						)
+		                .addGroup(gl_right_panel.createSequentialGroup()
+					        .addGap(20)
+					        .addComponent(btnAdd, GroupLayout.PREFERRED_SIZE, 130, GroupLayout.PREFERRED_SIZE)
+					        .addGap(40)
+						    .addComponent(btnReserve, GroupLayout.PREFERRED_SIZE, 80, GroupLayout.PREFERRED_SIZE)
+		                )
 		            )
 		        )
 		);
@@ -275,9 +277,12 @@ class MainFrame extends JFrame {
 		        		.addComponent(idLabel)
 		        		.addComponent(idTextField, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
 			        )
-		        	.addGap(60)
+		        	.addGap(30)
 		        	.addGroup(gl_right_panel.createParallelGroup(Alignment.BASELINE)
 		        		.addComponent(btnSearch, GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE)
+			        )
+		        	.addGap(30)
+		        	.addGroup(gl_right_panel.createParallelGroup(Alignment.BASELINE)
 						.addComponent(btnAdd, GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE)
                         .addComponent(btnReserve, GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE)
 			        )
@@ -334,6 +339,12 @@ class MainFrame extends JFrame {
     	String paddedDate = String.format("%02d", Integer.parseInt(selectedDate));
     	// Create the SQL date string in "YYYY-MM-DD" format
     	String appointmentDate = String.join("-", selectedYear, paddedMonth, paddedDate);
+    	
+    	if (id.isEmpty()) {
+    		JOptionPane.showMessageDialog(null, "身分證不可空白", "錯誤訊息", JOptionPane.ERROR_MESSAGE);
+    		idTextField.requestFocus();
+    		return;
+    	}
 		
 		DataStorage dstor = new DataStorage();
 		ArrayList data_list = dstor.getPatientInfo(id);
@@ -343,16 +354,8 @@ class MainFrame extends JFrame {
 			return;
 		}
 		
-		String confirmationMessage = "身分證      :  " + id + "\n" + 
-									 "預約日期  :  " + appointmentDate + "\n";
-
-		int result = JOptionPane.showConfirmDialog(null, confirmationMessage + "\n確定預約?\n\n", "預約", JOptionPane.YES_NO_OPTION);
-		
-		if (result == JOptionPane.YES_OPTION) {
-		
-		} else {
-			JOptionPane.showMessageDialog(null, "取消預約", "系統訊息", JOptionPane.INFORMATION_MESSAGE );
-		}
+		AppointmentFrame ap_f = new AppointmentFrame((String)data_list.get(1), id);
+		ap_f.setTitle("Make Appointment");
     }
 }
 

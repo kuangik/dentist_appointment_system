@@ -29,16 +29,21 @@ import javax.swing.Timer;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JOptionPane;
+import javax.swing.JTextArea;
+import javax.swing.BorderFactory;
+import javax.swing.border.Border;
 
-
-public class AddFrame extends JFrame {
+public class AppointmentFrame extends JFrame {
 	private JPanel contentPane;
 	private JPanel panel, centerPanel;
-	private JTextField idTextField, nameTextField, addrTextField, mobileTextField, bdayTextField;
-	private JLabel nameLabel, idLabel, bdayLabel, addrLabel;
+	private JTextField treatmentTextField;
+	private JTextArea commentTextArea;
+	private JLabel nameValLabel, idValLabel;
 	private JComboBox<Integer> yearComboBox;
 	private JComboBox<Integer> monthComboBox;
 	private JComboBox<Integer> dateComboBox;
+	private JComboBox<String> doctorComboBox;
+	private String[] doctors = {"黃醫生", "劉醫生", "柯醫生"};
 	
     // Get the current year, month, and date
     Calendar calendar = Calendar.getInstance();
@@ -46,8 +51,8 @@ public class AddFrame extends JFrame {
     int currentMonth = calendar.get(Calendar.MONTH) + 1; // Note: Month value is zero-based
     int currentDate = calendar.get(Calendar.DATE);
 	
-    AddFrame() {
-		setBounds(100,100,650,400);
+    AppointmentFrame(String name, String id) {
+		setBounds(100,100,600,550);
 		setVisible(true);
 		setResizable(false);
 		
@@ -62,26 +67,24 @@ public class AddFrame extends JFrame {
         centerPanel = new JPanel();
         contentPane.add(centerPanel, BorderLayout.CENTER);
         
-        JLabel lblTitle = new JLabel("新建病例");
+        JLabel lblTitle = new JLabel("病患預約");
         lblTitle.setFont(lblTitle.getFont().deriveFont(40f)); // Increase font size if desired
         lblTitle.setPreferredSize(new Dimension(300, 50)); // Set the desired size
         
         JLabel nameLabel = new JLabel("姓名");
         nameLabel.setFont(nameLabel.getFont().deriveFont(24f)); // Increase font size if desired
         
-        nameTextField = new JTextField();
-        nameTextField.setColumns(10);
-        nameTextField.setFont(new Font("Arial", Font.PLAIN, 16));
+        nameValLabel = new JLabel(name);
+        nameValLabel.setFont(nameValLabel.getFont().deriveFont(24f)); // Increase font size if desired
         
         JLabel idLabel = new JLabel("身分證");
         idLabel.setFont(idLabel.getFont().deriveFont(24f)); // Increase font size if desired
         
-        idTextField = new JTextField();
-        idTextField.setColumns(10);
-        idTextField.setFont(new Font("Arial", Font.PLAIN, 16));
+        idValLabel = new JLabel(id);
+        idValLabel.setFont(idValLabel.getFont().deriveFont(24f)); // Increase font size if desired
         
-        JLabel bdayLabel = new JLabel("生日");
-        bdayLabel.setFont(bdayLabel.getFont().deriveFont(24f)); // Increase font size if desired
+        JLabel reserveLabel = new JLabel("預約日期");
+        reserveLabel.setFont(reserveLabel.getFont().deriveFont(24f)); // Increase font size if desired
         
         yearComboBox = new JComboBox<>();
         // Put the text in the center
@@ -127,7 +130,7 @@ public class AddFrame extends JFrame {
         });
         
      // Load the year, month, and date JComboBox with the current values
-        for (int year = 1950; year <= currentYear; year++) {
+        for (int year = currentYear; year <= currentYear + 10; year++) {
             yearComboBox.addItem(year);
         }
 
@@ -139,49 +142,69 @@ public class AddFrame extends JFrame {
             dateComboBox.addItem(date);
         }
         
-        JLabel addrLabel = new JLabel("住址");
-        addrLabel.setFont(addrLabel.getFont().deriveFont(24f)); // Increase font size if desired
+        yearComboBox.setSelectedItem(currentYear);
+        monthComboBox.setSelectedItem(currentMonth);
+        dateComboBox.setSelectedItem(currentDate);
         
-        addrTextField = new JTextField();
-        addrTextField.setColumns(10);
-        addrTextField.setFont(new Font("Arial", Font.PLAIN, 16));
+        JLabel doctorLabel = new JLabel("醫生");
+        doctorLabel.setFont(doctorLabel.getFont().deriveFont(24f)); // Increase font size if desired
         
-        JLabel mobileLabel = new JLabel("行動電話");
-        mobileLabel.setFont(mobileLabel.getFont().deriveFont(24f)); // Increase font size if desired
+        doctorComboBox = new JComboBox();
         
-        mobileTextField = new JTextField();
-        mobileTextField.setColumns(10);
-        mobileTextField.setFont(new Font("Arial", Font.PLAIN, 16));
+        for (int idx = 0; idx < doctors.length; idx++) {
+        	doctorComboBox.addItem(doctors[idx]);
+        }
         
-        JButton btnSave = new JButton("儲存");
-        btnSave.setPreferredSize(new Dimension(200, 50));
-        btnSave.setFont(new Font(btnSave.getFont().getName(), Font.BOLD, 16));
+        JLabel treatmentLabel = new JLabel("治療方式");
+        treatmentLabel.setFont(treatmentLabel.getFont().deriveFont(24f)); // Increase font size if desired
+
+        Border border = BorderFactory.createLineBorder(Color.BLACK, 1);
+        treatmentTextField = new JTextField();
+        treatmentTextField.setFont(new Font("Arial", Font.PLAIN, 16));
+        treatmentTextField.setBorder(border);
         
-        btnSave.addActionListener(new ActionListener() {
+        JLabel commentLabel = new JLabel("註解");
+        commentLabel.setFont(commentLabel.getFont().deriveFont(24f)); // Increase font size if desired
+        
+        commentTextArea = new JTextArea(5, 30);
+        commentTextArea.setLineWrap(true);
+        commentTextArea.setWrapStyleWord(true);
+        commentTextArea.setFont(new Font("Arial", Font.PLAIN, 16));
+        commentTextArea.setBorder(border);
+        
+        JButton btnAppointment = new JButton("預約");
+        btnAppointment.setPreferredSize(new Dimension(200, 50));
+        btnAppointment.setFont(new Font(btnAppointment.getFont().getName(), Font.BOLD, 16));
+        
+        btnAppointment.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-            	saveButtonActionPerformed(e);
+            	appointButtonActionPerformed(e);
             }
         });
         
         GroupLayout gl_panel = new GroupLayout(panel);
         gl_panel.setHorizontalGroup(
             gl_panel.createParallelGroup(Alignment.LEADING)
+            	.addGroup(gl_panel.createSequentialGroup()
+                    .addGap(150)
+                    .addComponent(lblTitle)
+                )
                 .addGroup(gl_panel.createSequentialGroup()
                     .addGap(50)
                     .addComponent(nameLabel)
                     .addGap(100)
-                    .addComponent(nameTextField, GroupLayout.PREFERRED_SIZE, 130, GroupLayout.PREFERRED_SIZE)
+                    .addComponent(nameValLabel)
                 )
                 .addGroup(gl_panel.createSequentialGroup()
                     .addGap(50)
                     .addComponent(idLabel)
                     .addGap(75)
-                    .addComponent(idTextField, GroupLayout.PREFERRED_SIZE, 130, GroupLayout.PREFERRED_SIZE)
+                    .addComponent(idValLabel)
                 )
                 .addGroup(gl_panel.createSequentialGroup()
                     .addGap(50)
-                    .addComponent(bdayLabel)
-                    .addGap(100)
+                    .addComponent(reserveLabel)
+                    .addGap(50)
                     .addComponent(yearComboBox, GroupLayout.PREFERRED_SIZE, 70, GroupLayout.PREFERRED_SIZE)
 			        .addGap(20)
 			        .addComponent(monthComboBox, GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE)
@@ -191,54 +214,68 @@ public class AddFrame extends JFrame {
                 )
                 .addGroup(gl_panel.createSequentialGroup()
                     .addGap(50)
-                    .addComponent(addrLabel)
+                    .addComponent(doctorLabel)
                     .addGap(100)
-                    .addComponent(addrTextField, GroupLayout.PREFERRED_SIZE, 350, GroupLayout.PREFERRED_SIZE)
+                    .addComponent(doctorComboBox, GroupLayout.PREFERRED_SIZE, 130, GroupLayout.PREFERRED_SIZE)
                 )
                 .addGroup(gl_panel.createSequentialGroup()
                     .addGap(50)
-                    .addComponent(mobileLabel)
+                    .addComponent(treatmentLabel)
                     .addGap(50)
-                    .addComponent(mobileTextField, GroupLayout.PREFERRED_SIZE, 130, GroupLayout.PREFERRED_SIZE)
+                    .addComponent(treatmentTextField, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
                 )
                 .addGroup(gl_panel.createSequentialGroup()
-                    .addGap(300)
-                    .addComponent(btnSave)
+                    .addGap(50)
+                    .addComponent(commentLabel)
+                    .addGap(100)
+                    .addComponent(commentTextArea, GroupLayout.PREFERRED_SIZE, 300, GroupLayout.PREFERRED_SIZE)
+                )
+                .addGroup(gl_panel.createSequentialGroup()
+                    .addGap(250)
+                    .addComponent(btnAppointment)
                 )
         );
         gl_panel.setVerticalGroup(
             gl_panel.createParallelGroup(Alignment.LEADING)
                 .addGroup(gl_panel.createSequentialGroup()
+                    .addGroup(gl_panel.createParallelGroup(Alignment.CENTER)
+        		        .addComponent(lblTitle)
+        			)
                     .addGap(30)
                     .addGroup(gl_panel.createParallelGroup(Alignment.BASELINE)
     		       	    .addComponent(nameLabel)
-    		       	    .addComponent(nameTextField, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
+    		       	    .addComponent(nameValLabel)
     			    )
                     .addGap(10)
                     .addGroup(gl_panel.createParallelGroup(Alignment.BASELINE)
         		        .addComponent(idLabel)
-        		        .addComponent(idTextField, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
+        		        .addComponent(idValLabel)
         			)
                     .addGap(10)
                     .addGroup(gl_panel.createParallelGroup(Alignment.BASELINE)
-            		    .addComponent(bdayLabel)
+            		    .addComponent(reserveLabel)
             		    .addComponent(yearComboBox, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
 				        .addComponent(monthComboBox, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
 				        .addComponent(dateComboBox, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
                     )
                     .addGap(10)
                     .addGroup(gl_panel.createParallelGroup(Alignment.BASELINE)
-            		    .addComponent(addrLabel)
-            		    .addComponent(addrTextField, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
+            		    .addComponent(doctorLabel)
+            		    .addComponent(doctorComboBox, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
                     )
                     .addGap(10)
                     .addGroup(gl_panel.createParallelGroup(Alignment.BASELINE)
-                        .addComponent(mobileLabel)
-                        .addComponent(mobileTextField, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
+                    	.addComponent(treatmentLabel)
+                    	.addComponent(treatmentTextField, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
+                    )
+                    .addGap(10)
+                    .addGroup(gl_panel.createParallelGroup(Alignment.BASELINE)
+                   	    .addComponent(commentLabel)
+                   	    .addComponent(commentTextArea, GroupLayout.PREFERRED_SIZE, 90, GroupLayout.PREFERRED_SIZE)
                     )
                     .addGap(30)
                     .addGroup(gl_panel.createParallelGroup(Alignment.BASELINE)
-                        .addComponent(btnSave)
+                        .addComponent(btnAppointment)
                     )
                 )
         );
@@ -246,12 +283,8 @@ public class AddFrame extends JFrame {
         panel.setLayout(gl_panel);
 	}
     
-    private void saveButtonActionPerformed(java.awt.event.ActionEvent evt) {
+    private void appointButtonActionPerformed(java.awt.event.ActionEvent evt) {
     	DataStorage dstor = new DataStorage();
-    	String id = idTextField.getText();
-    	String name = nameTextField.getText();
-    	String addr = addrTextField.getText();
-    	String mobile = mobileTextField.getText();
     	String selectedYear = (String)(yearComboBox.getSelectedItem().toString());
     	String selectedMonth = (String)(monthComboBox.getSelectedItem().toString());
     	String selectedDate = (String)(dateComboBox.getSelectedItem().toString());
@@ -259,58 +292,41 @@ public class AddFrame extends JFrame {
     	String paddedMonth = String.format("%02d", Integer.parseInt(selectedMonth));
     	String paddedDate = String.format("%02d", Integer.parseInt(selectedDate));
     	// Create the SQL date string in "YYYY-MM-DD" format
-    	String birthday = String.join("-", selectedYear, paddedMonth, paddedDate);
+    	String appointDate = String.join("-", selectedYear, paddedMonth, paddedDate);
+    	String id = idValLabel.getText();
+    	String doctor = doctorComboBox.getSelectedItem().toString();
+    	String treatment = treatmentTextField.getText();
+    	String comment = commentTextArea.getText();
     	
-    	if (id.isEmpty()) {
-    		JOptionPane.showMessageDialog(null, "身分證不可空白", "錯誤訊息", JOptionPane.ERROR_MESSAGE);
-    		idTextField.requestFocus();
-    		return;
-    	}
-    	
-    	if (name.isEmpty()) {
-    		JOptionPane.showMessageDialog(null, "姓名不可空白", "錯誤訊息", JOptionPane.ERROR_MESSAGE);
-    		nameTextField.requestFocus();
-    		return;
-    	}
-    	
-    	if (addr.isEmpty()) {
-    		JOptionPane.showMessageDialog(null, "請輸入住址", "錯誤訊息", JOptionPane.ERROR_MESSAGE);
-    		addrTextField.requestFocus();
-    		return;
-    	}
-    	
-    	if (mobile.isEmpty()) {
-    		JOptionPane.showMessageDialog(null, "請輸入行動電話", "錯誤訊息", JOptionPane.ERROR_MESSAGE);
-    		mobileTextField.requestFocus();
-    		return;
-    	}
-    	
-    	ArrayList data_list = dstor.getPatientInfo(id);
+    	// Check if there is existing appointment
+    	ArrayList data_list = dstor.getAppointmentInfo(id, appointDate);
     	
     	if (data_list.isEmpty()) {
-    		String confirmationMessage = "姓名          :  " + name + "\n" + 
-    									 "生日          :  " + birthday + "\n" +
-    									 "身分證      :  " + id + "\n" +
-    									 "住址          :  " + addr + "\n" +
-    									 "行動電話  :  " + mobile + "\n";
+    		String confirmationMessage = "姓名          :  " + nameValLabel.getText() + "\n" + 
+									     "身分證      :  " + id + "\n" +
+									     "日期          :  " + appointDate + "\n" +
+									     "醫生          :  " + doctor + "\n";
     		
-    		int result = JOptionPane.showConfirmDialog(null, confirmationMessage + "\n確定新增?\n\n", "新增病患", JOptionPane.YES_NO_OPTION);
+    		int result = JOptionPane.showConfirmDialog(null, confirmationMessage + "\n確定預約?\n\n", "預約", JOptionPane.YES_NO_OPTION);
     		
     		if (result == JOptionPane.YES_OPTION) {
-	    		if (dstor.addPatient(name, id, addr, mobile, birthday) == true) {
-	        		JOptionPane.showMessageDialog(null, "新增到資料庫完成", "系統訊息", JOptionPane.INFORMATION_MESSAGE );
+	    		if (dstor.addAppointment(id, appointDate, doctor, treatment, comment) == true) {
+	        		JOptionPane.showMessageDialog(null, "預約完成", "系統訊息", JOptionPane.INFORMATION_MESSAGE);
+	        		dispose();
 	        	} else {
-	        		JOptionPane.showMessageDialog(null, "新增到資料庫失敗", "錯誤訊息", JOptionPane.ERROR_MESSAGE);
+	        		JOptionPane.showMessageDialog(null, "預約失敗", "錯誤訊息", JOptionPane.ERROR_MESSAGE);
 	        		return;
 	        	}
     		} else {
-    			JOptionPane.showMessageDialog(null, "取消新增病患", "系統訊息", JOptionPane.INFORMATION_MESSAGE );
+    			JOptionPane.showMessageDialog(null, "取消預約", "系統訊息", JOptionPane.INFORMATION_MESSAGE);
     		}
     	} else {
-    		JOptionPane.showMessageDialog(null, "身分證已存在", "錯誤訊息", JOptionPane.ERROR_MESSAGE);
+    		JOptionPane.showMessageDialog(null, "重複預約!", "錯誤訊息", JOptionPane.ERROR_MESSAGE);
     		return;
     	}
     	
     	
+    	
     }
+    
 }
