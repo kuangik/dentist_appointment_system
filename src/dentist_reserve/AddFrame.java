@@ -299,6 +299,7 @@ public class AddFrame extends JFrame {
     		if (result == JOptionPane.YES_OPTION) {
 	    		if (dstor.addPatient(name, id, addr, mobile, birthday) == true) {
 	        		JOptionPane.showMessageDialog(null, "新增到資料庫完成", "系統訊息", JOptionPane.INFORMATION_MESSAGE );
+	        		dispose();
 	        	} else {
 	        		JOptionPane.showMessageDialog(null, "新增到資料庫失敗", "錯誤訊息", JOptionPane.ERROR_MESSAGE);
 	        		return;
