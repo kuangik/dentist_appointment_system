@@ -113,9 +113,6 @@ class MainFrame extends JFrame {
         lblTitle.setFont(lblTitle.getFont().deriveFont(40f)); // Increase font size if desired
         lblTitle.setPreferredSize(new Dimension(300, 50)); // Set the desired size
         
-        JLabel searchLabel = new JLabel("請選擇搜尋方式:");
-        searchLabel.setFont(searchLabel.getFont().deriveFont(24f)); // Increase font size if desired
-        
         JLabel dateLabel = new JLabel("預約日期");
         dateLabel.setFont(dateLabel.getFont().deriveFont(24f)); // Increase font size if desired
         
@@ -208,6 +205,12 @@ class MainFrame extends JFrame {
         btnSearch.setPreferredSize(new Dimension(200, 50));
         btnSearch.setFont(new Font(btnSearch.getFont().getName(), Font.BOLD, 16));
         
+        btnSearch.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                searchButtonActionPerformed(e);
+            }
+        });
+        
         JButton btnAdd = new JButton("新增病例");
         btnAdd.setPreferredSize(new Dimension(200, 50));
         btnAdd.setFont(new Font(btnAdd.getFont().getName(), Font.BOLD, 16));
@@ -238,10 +241,6 @@ class MainFrame extends JFrame {
 		                    .addComponent(lblTitle)
 		                )
 		                .addGroup(gl_right_panel.createSequentialGroup()
-				        	.addGap(20)
-				            .addComponent(searchLabel)
-				        )
-		                .addGroup(gl_right_panel.createSequentialGroup()
 					    	.addGap(20)
 					        .addComponent(dateLabel)
 					        .addGap(75)
@@ -261,12 +260,12 @@ class MainFrame extends JFrame {
 		                .addGroup(gl_right_panel.createSequentialGroup()
 							.addGap(20)
 						    .addComponent(btnSearch, GroupLayout.PREFERRED_SIZE, 80, GroupLayout.PREFERRED_SIZE)
+						    .addGap(40)
+						    .addComponent(btnReserve, GroupLayout.PREFERRED_SIZE, 80, GroupLayout.PREFERRED_SIZE)
 						)
 		                .addGroup(gl_right_panel.createSequentialGroup()
 					        .addGap(20)
 					        .addComponent(btnAdd, GroupLayout.PREFERRED_SIZE, 130, GroupLayout.PREFERRED_SIZE)
-					        .addGap(40)
-						    .addComponent(btnReserve, GroupLayout.PREFERRED_SIZE, 80, GroupLayout.PREFERRED_SIZE)
 		                )
 		            )
 		        )
@@ -282,10 +281,6 @@ class MainFrame extends JFrame {
 	            .addGroup(gl_right_panel.createSequentialGroup()
 		        	.addGap(40)
 		        	.addGroup(gl_right_panel.createParallelGroup(Alignment.BASELINE)
-		        		.addComponent(searchLabel)
-			        )
-		        	.addGap(40)
-		        	.addGroup(gl_right_panel.createParallelGroup(Alignment.BASELINE)
 		        		.addComponent(dateLabel)
 		        		.addComponent(yearComboBox, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
 				        .addComponent(monthComboBox, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
@@ -296,14 +291,14 @@ class MainFrame extends JFrame {
 		        		.addComponent(idLabel)
 		        		.addComponent(idTextField, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
 			        )
-		        	.addGap(30)
+		        	.addGap(80)
 		        	.addGroup(gl_right_panel.createParallelGroup(Alignment.BASELINE)
 		        		.addComponent(btnSearch, GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE)
+		        		.addComponent(btnReserve, GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE)
 			        )
 		        	.addGap(30)
 		        	.addGroup(gl_right_panel.createParallelGroup(Alignment.BASELINE)
 						.addComponent(btnAdd, GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE)
-                        .addComponent(btnReserve, GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE)
 			        )
 		        )
         );
@@ -343,6 +338,37 @@ class MainFrame extends JFrame {
 		}
 	}
 	
+	private void searchButtonActionPerformed(java.awt.event.ActionEvent evt) {
+		String id = idTextField.getText();
+		
+		// Use appointment date if ID is empty
+		if (id.isEmpty()) {
+			String selectedYear = (String)(yearComboBox.getSelectedItem().toString());
+	    	String selectedMonth = (String)(monthComboBox.getSelectedItem().toString());
+	    	String selectedDate = (String)(dateComboBox.getSelectedItem().toString());
+	    	// Pad single-digit month and date values with leading zeros if necessary
+	    	String paddedMonth = String.format("%02d", Integer.parseInt(selectedMonth));
+	    	String paddedDate = String.format("%02d", Integer.parseInt(selectedDate));
+	    	// Create the SQL date string in "YYYY-MM-DD" format
+	    	String appointmentDate = String.join("-", selectedYear, paddedMonth, paddedDate);
+	    	
+	    	ShowAppointmentFrame s_frame = new ShowAppointmentFrame("", appointmentDate);
+	    	s_frame.setTitle("顯示預約結果");
+		} else {
+			DataStorage dstor = new DataStorage();
+			ArrayList data_list = dstor.getPatientInfo(id);
+			
+			// Check if patient is already registered before
+			if (data_list.isEmpty()) {
+				JOptionPane.showMessageDialog(null, "找不到病患", "錯誤訊息", JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+			
+			ShowAppointmentFrame s_frame = new ShowAppointmentFrame(id, "");
+	    	s_frame.setTitle("顯示預約結果");
+		}
+    }
+	
 	private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {
 		AddFrame add_f = new AddFrame();
 		add_f.setTitle("Add New Patient");
@@ -364,15 +390,16 @@ class MainFrame extends JFrame {
     		idTextField.requestFocus();
     		return;
     	}
-		
-		DataStorage dstor = new DataStorage();
+    	
+    	DataStorage dstor = new DataStorage();
 		ArrayList data_list = dstor.getPatientInfo(id);
+		
 		// Check if patient is already registered before
 		if (data_list.isEmpty()) {
 			JOptionPane.showMessageDialog(null, "請先註冊病患", "錯誤訊息", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
-		
+    	
 		AppointmentFrame ap_f = new AppointmentFrame((String)data_list.get(1), id);
 		ap_f.setTitle("Make Appointment");
     }

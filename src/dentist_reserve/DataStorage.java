@@ -174,5 +174,69 @@ public class DataStorage {
             return apptInfo;
         }
     }
+    
+    public static ArrayList<QueryAppointmentData> getAppointmentInfoByID_Date(String ID, String date) {
+    	String sql = "";
+    	Boolean query_by_id = true;
+    	
+        Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+        ArrayList<QueryAppointmentData> apptInfo = new ArrayList<>();
+        
+        if (ID.isEmpty()) {
+    		sql = "SELECT * from appointment_info WHERE Date = ?";
+    		query_by_id = false;
+    	} else if (date.isEmpty()) {
+    		sql = "SELECT * from appointment_info WHERE ID = ?";
+    	} else {
+    		System.out.println("Invalid query\n");
+    		return null;
+    	}
+        
+        try {
+        	connection = DatabaseConnector.getConnection();
+        	statement = connection.prepareStatement(sql);
+        	
+        	if (query_by_id) {
+        		statement.setString(1, ID);
+        	} else {
+        		statement.setString(1, date);
+        	}
+            resultSet = statement.executeQuery();
+            
+            while (resultSet.next()) {
+            	QueryAppointmentData appointmentData = new QueryAppointmentData();
+            	
+            	appointmentData.id 					= resultSet.getString("ID").toString();
+            	appointmentData.reservation_date 	= resultSet.getString("Date").toString();
+            	appointmentData.doctor 				= resultSet.getString("Doctor").toString();
+            	appointmentData.comment				= resultSet.getString("Comment").toString();
+            	appointmentData.treatment			= resultSet.getString("Treatment").toString();
+            	
+            	System.out.println(appointmentData.id + " " + appointmentData.reservation_date + " " + appointmentData.doctor);
+            	
+            	apptInfo.add(appointmentData);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error retrieving value: " + e.getMessage());
+        } finally {
+            try {
+            	if (resultSet != null) {
+            		resultSet.close();
+            	}
+                if (statement != null) {
+                    statement.close();
+                }
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e) {
+                System.err.println("Error closing connection: " + e.getMessage());
+            }
+            
+            return apptInfo;
+        }
+    }
 }
 
