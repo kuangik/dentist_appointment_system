@@ -1,38 +1,23 @@
 package dentist_reserve;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.net.URL;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.ArrayList;
-import javax.imageio.ImageIO;
-import javax.swing.DefaultListCellRenderer;
 import javax.swing.GroupLayout;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 import javax.swing.SwingConstants;
-import javax.swing.Timer;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JOptionPane;
-import javax.swing.JTextArea;
-import javax.swing.BorderFactory;
-import javax.swing.border.Border;
 import javax.swing.JTable;
 import javax.swing.JScrollPane;
 import javax.swing.table.DefaultTableModel;
@@ -59,14 +44,9 @@ class ReadOnlyTableModel extends DefaultTableModel {
 public class ShowAppointmentFrame extends JFrame {
 	private JPanel contentPane;
 	private JPanel panel;
-	private JComboBox<Integer> yearComboBox;
-	private JComboBox<Integer> monthComboBox;
-	private JComboBox<Integer> dateComboBox;
-	private JComboBox<String> doctorComboBox;
 	private JTable resultTable;
 	private JScrollPane scrollPane;
 	private ReadOnlyTableModel tableModel = new ReadOnlyTableModel();
-	private DataStorage dstor = new DataStorage();
 	private ArrayList<QueryAppointmentData> query_result;
 	private Boolean show_by_id = false;
 	
@@ -88,7 +68,7 @@ public class ShowAppointmentFrame extends JFrame {
     	
     	if (show_by_id) {
     		// Get name
-    		ArrayList data_list = dstor.getPatientInfo(id);
+    		ArrayList<String> data_list = DataStorage.getPatientInfo(id);
     		
     		// Check if patient is already registered before
     		if (data_list.isEmpty()) {
@@ -134,7 +114,7 @@ public class ShowAppointmentFrame extends JFrame {
         tableModel.addColumn("治療方式");
         tableModel.addColumn("備註");
         
-        query_result = dstor.getAppointmentInfoByID_Date(id, date);
+        query_result = DataStorage.getAppointmentInfoByID_Date(id, date);
         for (int idx = 0; idx < query_result.size(); idx++) {
         	QueryAppointmentData data = query_result.get(idx);
         	String name_str = "---";
@@ -142,7 +122,7 @@ public class ShowAppointmentFrame extends JFrame {
         	if (show_by_id) {
         		name_str = name;
         	} else {
-        		ArrayList data_list = dstor.getPatientInfo(data.id);
+        		ArrayList<String> data_list = DataStorage.getPatientInfo(data.id);
         		if (!data_list.isEmpty() ) {
         			name_str = (String)data_list.get(1);
         		}
@@ -229,7 +209,7 @@ public class ShowAppointmentFrame extends JFrame {
     	int result = JOptionPane.showConfirmDialog(null, confirmationMessage + "\n確定取消?\n\n", "取消預約", JOptionPane.YES_NO_OPTION);
 
 		if (result == JOptionPane.YES_OPTION) {
-			if (dstor.delAppointmentInfo(selected_id, selected_date) > 0) {
+			if (DataStorage.delAppointmentInfo(selected_id, selected_date) > 0) {
 	    		tableModel.removeRow(selectedRow);
 	    		scrollPane.revalidate();
 	    		scrollPane.repaint();

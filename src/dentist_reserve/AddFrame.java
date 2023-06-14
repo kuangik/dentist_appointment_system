@@ -1,23 +1,15 @@
 package dentist_reserve;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.net.URL;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.ArrayList;
-import javax.imageio.ImageIO;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.GroupLayout;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -25,7 +17,6 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.Timer;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JOptionPane;
@@ -34,8 +25,7 @@ import javax.swing.JOptionPane;
 public class AddFrame extends JFrame {
 	private JPanel contentPane;
 	private JPanel panel, centerPanel;
-	private JTextField idTextField, nameTextField, addrTextField, mobileTextField, bdayTextField;
-	private JLabel nameLabel, idLabel, bdayLabel, addrLabel;
+	private JTextField idTextField, nameTextField, addrTextField, mobileTextField;
 	private JComboBox<Integer> yearComboBox;
 	private JComboBox<Integer> monthComboBox;
 	private JComboBox<Integer> dateComboBox;
@@ -247,7 +237,6 @@ public class AddFrame extends JFrame {
 	}
     
     private void saveButtonActionPerformed(java.awt.event.ActionEvent evt) {
-    	DataStorage dstor = new DataStorage();
     	String id = idTextField.getText();
     	String name = nameTextField.getText();
     	String addr = addrTextField.getText();
@@ -285,7 +274,7 @@ public class AddFrame extends JFrame {
     		return;
     	}
     	
-    	ArrayList data_list = dstor.getPatientInfo(id);
+    	ArrayList<String> data_list = DataStorage.getPatientInfo(id);
     	
     	if (data_list.isEmpty()) {
     		String confirmationMessage = "姓名          :  " + name + "\n" + 
@@ -297,7 +286,7 @@ public class AddFrame extends JFrame {
     		int result = JOptionPane.showConfirmDialog(null, confirmationMessage + "\n確定新增?\n\n", "新增病患", JOptionPane.YES_NO_OPTION);
     		
     		if (result == JOptionPane.YES_OPTION) {
-	    		if (dstor.addPatient(name, id, addr, mobile, birthday) == true) {
+	    		if (DataStorage.addPatient(name, id, addr, mobile, birthday) == true) {
 	        		JOptionPane.showMessageDialog(null, "新增到資料庫完成", "系統訊息", JOptionPane.INFORMATION_MESSAGE );
 	        		dispose();
 	        	} else {

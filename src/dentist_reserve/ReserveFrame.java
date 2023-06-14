@@ -2,11 +2,9 @@ package dentist_reserve;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.io.File;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.GroupLayout.Alignment;
-import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.Component;
@@ -38,7 +36,7 @@ class MainFrame extends JFrame {
     int currentMonth = calendar.get(Calendar.MONTH) + 1; // Note: Month value is zero-based
     int currentDate = calendar.get(Calendar.DATE);
 	
-    MainFrame() {
+    MainFrame(String username) {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100,100,1000,550);
 		setVisible(true);
@@ -59,6 +57,9 @@ class MainFrame extends JFrame {
         
         JLabel nowLabel = new JLabel("現在時間");
         nowLabel.setFont(nowLabel.getFont().deriveFont(24f)); // Increase font size if desired
+        
+        JLabel usernameLabel = new JLabel("使用者: " + username);
+        usernameLabel.setFont(usernameLabel.getFont().deriveFont(20f)); // Increase font size if desired
         
         timeLabel = new JLabel();
         timeLabel.setFont(new Font("Arial", Font.PLAIN, 24));
@@ -88,6 +89,10 @@ class MainFrame extends JFrame {
                     .addGap(50)
                     .addComponent(timeLabel)
                 )
+                .addGroup(gl_panel.createSequentialGroup()
+                    .addGap(50)
+                    .addComponent(usernameLabel)
+                )
         );
         gl_panel.setVerticalGroup(
             gl_panel.createParallelGroup(Alignment.LEADING)
@@ -98,6 +103,8 @@ class MainFrame extends JFrame {
                     .addComponent(nowLabel)
                     .addGap(10)
                     .addComponent(timeLabel)
+                    .addGap(20)
+                    .addComponent(usernameLabel)
                 )
         );
         
@@ -355,8 +362,7 @@ class MainFrame extends JFrame {
 	    	ShowAppointmentFrame s_frame = new ShowAppointmentFrame("", appointmentDate);
 	    	s_frame.setTitle("顯示預約結果");
 		} else {
-			DataStorage dstor = new DataStorage();
-			ArrayList data_list = dstor.getPatientInfo(id);
+			ArrayList<String> data_list = DataStorage.getPatientInfo(id);
 			
 			// Check if patient is already registered before
 			if (data_list.isEmpty()) {
@@ -376,14 +382,6 @@ class MainFrame extends JFrame {
 	
 	private void reserveButtonActionPerformed(java.awt.event.ActionEvent evt) {
 		String id = idTextField.getText();
-		String selectedYear = (String)(yearComboBox.getSelectedItem().toString());
-    	String selectedMonth = (String)(monthComboBox.getSelectedItem().toString());
-    	String selectedDate = (String)(dateComboBox.getSelectedItem().toString());
-    	// Pad single-digit month and date values with leading zeros if necessary
-    	String paddedMonth = String.format("%02d", Integer.parseInt(selectedMonth));
-    	String paddedDate = String.format("%02d", Integer.parseInt(selectedDate));
-    	// Create the SQL date string in "YYYY-MM-DD" format
-    	String appointmentDate = String.join("-", selectedYear, paddedMonth, paddedDate);
     	
     	if (id.isEmpty()) {
     		JOptionPane.showMessageDialog(null, "身分證不可空白", "錯誤訊息", JOptionPane.ERROR_MESSAGE);
@@ -391,8 +389,7 @@ class MainFrame extends JFrame {
     		return;
     	}
     	
-    	DataStorage dstor = new DataStorage();
-		ArrayList data_list = dstor.getPatientInfo(id);
+		ArrayList<String> data_list = DataStorage.getPatientInfo(id);
 		
 		// Check if patient is already registered before
 		if (data_list.isEmpty()) {
@@ -417,9 +414,11 @@ class MainFrame extends JFrame {
 }
 
 public class ReserveFrame {
+	/*
 	public static void main(String[] args) {
 		MainFrame f = new MainFrame();
 		f.setTitle("Dentist Reservation System");
 	}
+	*/
 }
 

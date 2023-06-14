@@ -1,7 +1,6 @@
 package dentist_reserve;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -41,9 +40,8 @@ public class DataStorage {
             } catch (SQLException e) {
                 System.err.println("Error closing connection: " + e.getMessage());
             }
-            
-            return ret_value;
         }
+        return ret_value;
     }
     
     public static Boolean addAppointment(String ID, String date, String Doctor, String Treatment, String Comment) {
@@ -79,9 +77,9 @@ public class DataStorage {
             } catch (SQLException e) {
                 System.err.println("Error closing connection: " + e.getMessage());
             }
-            
-            return ret_value;
         }
+        
+        return ret_value;
     }
     
     public static ArrayList<String> getPatientInfo(String ID) {
@@ -124,9 +122,9 @@ public class DataStorage {
             } catch (SQLException e) {
                 System.err.println("Error closing connection: " + e.getMessage());
             }
-            
-            return patientInfo;
         }
+        
+        return patientInfo;
     }
     
     public static ArrayList<String> getAppointmentInfo(String ID, String date) {
@@ -170,16 +168,15 @@ public class DataStorage {
             } catch (SQLException e) {
                 System.err.println("Error closing connection: " + e.getMessage());
             }
-            
-            return apptInfo;
         }
+        
+        return apptInfo;
     }
     
     public static int delAppointmentInfo(String ID, String date) {
         String sql = "DELETE from appointment_info WHERE ID = ? and Date = ?";
         Connection connection = null;
         PreparedStatement statement = null;
-        Boolean del_result = false;
         int rowsAffected = 0;
         
         try {
@@ -265,9 +262,90 @@ public class DataStorage {
             } catch (SQLException e) {
                 System.err.println("Error closing connection: " + e.getMessage());
             }
-            
-            return apptInfo;
         }
+        
+        return apptInfo;
+    }
+    
+    public static ArrayList<String> getOperatorInfo(String username) {
+        String sql = "SELECT * from operator_info WHERE username = ?";
+        Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+        ArrayList<String> operatorInfo = new ArrayList<>();
+        
+        try {
+        	connection = DatabaseConnector.getConnection();
+        	statement = connection.prepareStatement(sql);
+        	
+            statement.setString(1, username);
+            resultSet = statement.executeQuery();
+            
+            if (resultSet.next()) {
+            	System.out.println("Operator Info is retrieved successfully.");
+            	operatorInfo.add(resultSet.getString("username"));
+            	operatorInfo.add(resultSet.getString("password"));
+            	operatorInfo.add(resultSet.getString("Name"));
+            	operatorInfo.add(resultSet.getString("Employee_ID"));
+            } else {
+            	System.out.println("No Value\n");
+            }
+        } catch (SQLException e) {
+            System.err.println("Error retrieving value: " + e.getMessage());
+        } finally {
+            try {
+            	if (resultSet != null) {
+            		resultSet.close();
+            	}
+                if (statement != null) {
+                    statement.close();
+                }
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e) {
+                System.err.println("Error closing connection: " + e.getMessage());
+            }
+        }
+        
+        return operatorInfo;
+    }
+    
+    public static Boolean addOperatorInfo(String Username, String Name, String EmployeeId, String Password) {
+        String sql = "INSERT INTO operator_info (username, password, Name, Employee_ID) VALUES (?, ?, ?, ?)";
+        Connection connection = null;
+        PreparedStatement statement = null;
+        Boolean ret_value = false;
+
+        try {
+        	connection = DatabaseConnector.getConnection();
+        	statement = connection.prepareStatement(sql);
+        	
+            statement.setString(1, Username);
+            statement.setString(2, Password);
+            statement.setString(3, Name);
+            statement.setString(4, EmployeeId);
+            statement.executeUpdate();
+
+            System.out.println("Value stored successfully.");
+            
+            ret_value = true;
+        } catch (SQLException e) {
+            System.err.println("Error storing value: " + e.getMessage());
+        } finally {
+            try {
+                if (statement != null) {
+                    statement.close();
+                }
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e) {
+                System.err.println("Error closing connection: " + e.getMessage());
+            }
+        }
+        
+        return ret_value;
     }
 }
 

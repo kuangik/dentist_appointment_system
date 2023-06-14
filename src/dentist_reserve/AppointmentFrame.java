@@ -5,19 +5,12 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.net.URL;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.ArrayList;
-import javax.imageio.ImageIO;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.GroupLayout;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -25,7 +18,6 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.Timer;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JOptionPane;
@@ -149,7 +141,7 @@ public class AppointmentFrame extends JFrame {
         JLabel doctorLabel = new JLabel("醫生");
         doctorLabel.setFont(doctorLabel.getFont().deriveFont(24f)); // Increase font size if desired
         
-        doctorComboBox = new JComboBox();
+        doctorComboBox = new JComboBox<String>();
         
         for (int idx = 0; idx < doctors.length; idx++) {
         	doctorComboBox.addItem(doctors[idx]);
@@ -284,7 +276,6 @@ public class AppointmentFrame extends JFrame {
 	}
     
     private void appointButtonActionPerformed(java.awt.event.ActionEvent evt) {
-    	DataStorage dstor = new DataStorage();
     	String selectedYear = (String)(yearComboBox.getSelectedItem().toString());
     	String selectedMonth = (String)(monthComboBox.getSelectedItem().toString());
     	String selectedDate = (String)(dateComboBox.getSelectedItem().toString());
@@ -299,7 +290,7 @@ public class AppointmentFrame extends JFrame {
     	String comment = commentTextArea.getText();
     	
     	// Check if there is existing appointment
-    	ArrayList data_list = dstor.getAppointmentInfo(id, appointDate);
+    	ArrayList<String> data_list = DataStorage.getAppointmentInfo(id, appointDate);
     	
     	if (data_list.isEmpty()) {
     		String confirmationMessage = "姓名          :  " + nameValLabel.getText() + "\n" + 
@@ -310,7 +301,7 @@ public class AppointmentFrame extends JFrame {
     		int result = JOptionPane.showConfirmDialog(null, confirmationMessage + "\n確定預約?\n\n", "預約", JOptionPane.YES_NO_OPTION);
     		
     		if (result == JOptionPane.YES_OPTION) {
-	    		if (dstor.addAppointment(id, appointDate, doctor, treatment, comment) == true) {
+	    		if (DataStorage.addAppointment(id, appointDate, doctor, treatment, comment) == true) {
 	        		JOptionPane.showMessageDialog(null, "預約完成", "系統訊息", JOptionPane.INFORMATION_MESSAGE);
 	        		dispose();
 	        	} else {
