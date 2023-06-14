@@ -175,6 +175,39 @@ public class DataStorage {
         }
     }
     
+    public static int delAppointmentInfo(String ID, String date) {
+        String sql = "DELETE from appointment_info WHERE ID = ? and Date = ?";
+        Connection connection = null;
+        PreparedStatement statement = null;
+        Boolean del_result = false;
+        int rowsAffected = 0;
+        
+        try {
+        	connection = DatabaseConnector.getConnection();
+        	statement = connection.prepareStatement(sql);
+        	
+            statement.setString(1, ID);
+            statement.setString(2, date);
+            rowsAffected = statement.executeUpdate();
+            
+        } catch (SQLException e) {
+            System.err.println("Error retrieving value: " + e.getMessage());
+        } finally {
+            try {
+                if (statement != null) {
+                    statement.close();
+                }
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e) {
+                System.err.println("Error closing connection: " + e.getMessage());
+            }
+        }
+        
+        return rowsAffected;
+    }
+    
     public static ArrayList<QueryAppointmentData> getAppointmentInfoByID_Date(String ID, String date) {
     	String sql = "";
     	Boolean query_by_id = true;
@@ -213,8 +246,6 @@ public class DataStorage {
             	appointmentData.doctor 				= resultSet.getString("Doctor").toString();
             	appointmentData.comment				= resultSet.getString("Comment").toString();
             	appointmentData.treatment			= resultSet.getString("Treatment").toString();
-            	
-            	System.out.println(appointmentData.id + " " + appointmentData.reservation_date + " " + appointmentData.doctor);
             	
             	apptInfo.add(appointmentData);
             }

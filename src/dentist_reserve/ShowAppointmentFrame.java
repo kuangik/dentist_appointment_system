@@ -58,12 +58,13 @@ class ReadOnlyTableModel extends DefaultTableModel {
 
 public class ShowAppointmentFrame extends JFrame {
 	private JPanel contentPane;
-	private JPanel panel, centerPanel;
+	private JPanel panel;
 	private JComboBox<Integer> yearComboBox;
 	private JComboBox<Integer> monthComboBox;
 	private JComboBox<Integer> dateComboBox;
 	private JComboBox<String> doctorComboBox;
 	private JTable resultTable;
+	private JScrollPane scrollPane;
 	private ReadOnlyTableModel tableModel = new ReadOnlyTableModel();
 	private DataStorage dstor = new DataStorage();
 	private ArrayList<QueryAppointmentData> query_result;
@@ -110,9 +111,6 @@ public class ShowAppointmentFrame extends JFrame {
 		panel = new JPanel();
         contentPane.add(panel, BorderLayout.WEST);
         
-        centerPanel = new JPanel();
-        contentPane.add(centerPanel, BorderLayout.CENTER);
-        
         JLabel lblTitle = new JLabel("病患預約狀況");
         lblTitle.setFont(lblTitle.getFont().deriveFont(40f)); // Increase font size if desired
         lblTitle.setPreferredSize(new Dimension(300, 50)); // Set the desired size
@@ -139,8 +137,17 @@ public class ShowAppointmentFrame extends JFrame {
         query_result = dstor.getAppointmentInfoByID_Date(id, date);
         for (int idx = 0; idx < query_result.size(); idx++) {
         	QueryAppointmentData data = query_result.get(idx);
+        	String name_str = "---";
         	
-        	tableModel.addRow(new Object[]{"", data.id, data.reservation_date, data.doctor, data.treatment, data.comment});
+        	if (show_by_id) {
+        		name_str = name;
+        	} else {
+        		ArrayList data_list = dstor.getPatientInfo(data.id);
+        		if (!data_list.isEmpty() ) {
+        			name_str = (String)data_list.get(1);
+        		}
+        	}
+        	tableModel.addRow(new Object[]{name_str, data.id, data.reservation_date, data.doctor, data.treatment, data.comment});
         }
         
         resultTable = new JTable(tableModel);
@@ -162,11 +169,17 @@ public class ShowAppointmentFrame extends JFrame {
         resultTable.getColumnModel().getColumn(4).setPreferredWidth(200);
         resultTable.getColumnModel().getColumn(5).setPreferredWidth(500);
         
-        JScrollPane scrollPane = new JScrollPane(resultTable);
+        scrollPane = new JScrollPane(resultTable);
         
         JButton btnCancel = new JButton("取消預約");
         btnCancel.setPreferredSize(new Dimension(200, 50));
         btnCancel.setFont(new Font(btnCancel.getFont().getName(), Font.BOLD, 16));
+        
+        btnCancel.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            	cancelButtonActionPerformed(e);
+            }
+        });
         
         GroupLayout gl_panel = new GroupLayout(panel);
         gl_panel.setHorizontalGroup(
@@ -176,15 +189,7 @@ public class ShowAppointmentFrame extends JFrame {
                     .addComponent(lblTitle)
                 )
             	.addGroup(gl_panel.createSequentialGroup()
-                	.addGap(50)
-                	.addComponent(nameLabel)
-                	.addGap(20)
-                	.addComponent(nameValLabel)
-                	.addGap(50)
-                	.addComponent(idLabel)
-                	.addGap(20)
-                	.addComponent(idValLabel)
-                	.addGap(575)
+                	.addGap(1030)
                     .addComponent(btnCancel)
                 )
                 .addGroup(gl_panel.createSequentialGroup()
@@ -200,10 +205,6 @@ public class ShowAppointmentFrame extends JFrame {
         			)
                     .addGap(30)
                     .addGroup(gl_panel.createParallelGroup(Alignment.BASELINE)
-                    	.addComponent(nameLabel)
-                    	.addComponent(nameValLabel)
-                    	.addComponent(idLabel)
-                    	.addComponent(idValLabel)
                     	.addComponent(btnCancel)
     			    )
                     .addGap(25)
@@ -217,8 +218,25 @@ public class ShowAppointmentFrame extends JFrame {
         panel.setLayout(gl_panel);
 	}
     
-    private void appointButtonActionPerformed(java.awt.event.ActionEvent evt) {
+    private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {
     	
+    	int selectedRow = resultTable.getSelectedRow();
+    	String selected_id = (String)resultTable.getValueAt(selectedRow, 1);
+    	String selected_date = (String)resultTable.getValueAt(selectedRow, 2);
+    	String confirmationMessage = "身分證      :  " + selected_id + "\n" + 
+									 "預約日期  :  " + selected_date + "\n";
+
+    	int result = JOptionPane.showConfirmDialog(null, confirmationMessage + "\n確定取消?\n\n", "取消預約", JOptionPane.YES_NO_OPTION);
+
+		if (result == JOptionPane.YES_OPTION) {
+			if (dstor.delAppointmentInfo(selected_id, selected_date) > 0) {
+	    		tableModel.removeRow(selectedRow);
+	    		scrollPane.revalidate();
+	    		scrollPane.repaint();
+	    	} else {
+	    		JOptionPane.showMessageDialog(null, "取消預約失敗", "錯誤訊息", JOptionPane.ERROR_MESSAGE);
+				return;
+	    	}
+		}
     }
-    
 }
